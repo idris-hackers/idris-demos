@@ -1,0 +1,8 @@
+package invaders
+
+modules = Starfield, Gamestate, Aliens, Rnd, Main 
+opts = "-p effects -p sdl" 
+
+executable = invaders
+main = Main
+
