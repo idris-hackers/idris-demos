@@ -7,7 +7,7 @@ using (xs : List a)
 
 isElem : DecEq a => (x : a) -> (xs : List a) -> Maybe (Elem x xs)
 isElem x [] = Nothing
-isElem x (t :: ts) with (decEq x t)
-  isElem x (x :: ts) | (Yes refl) = Just Here
-  isElem x (t :: ts) | (No var) = Just (There !(isElem x ts))
+isElem x (y :: xs) with (decEq x y)
+  isElem x (x :: xs) | (Yes refl) = Just Here
+  isElem x (y :: xs) | (No f) = Just (There !(isElem x xs))
 

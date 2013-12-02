@@ -1,7 +1,7 @@
 module Vect
 
 {-
-To write this function in vim:
+To write these functions in vim:
 
 \d to make a template definition
 \c over a variable to do case analysis on that variable
@@ -9,5 +9,8 @@ To write this function in vim:
 
 -}
 
+append : Vect n a -> Vect m a -> Vect (n + m) a
+
 vzipWith : (a -> b -> c) -> Vect n a -> Vect n b -> Vect n c
+
 
