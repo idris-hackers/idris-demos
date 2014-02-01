@@ -2,8 +2,8 @@ module Rnd
 
 import Effects
 
-data Random : Type -> Type -> Type -> Type where
-     getRandom : Random Int Int Int
+data Random : Effect where
+     getRandom : Random Int Int (\v => Int)
 
 using (m : Type -> Type)
   instance Handler Random m where
@@ -14,7 +14,7 @@ using (m : Type -> Type)
 RND : EFFECT
 RND = MkEff Int Random
 
-rndInt : Int -> Int -> Eff m [RND] Int
+rndInt : Int -> Int -> { [RND] } Eff m Int
 rndInt lower upper = do v <- getRandom
                         return (abs (v `prim__sremInt` (upper - lower)) + lower)
 

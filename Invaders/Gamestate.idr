@@ -23,7 +23,7 @@ initState = MkGamestate (320,400) 0 0 [] [] startAliens
 -- Game state effect needs access to a random number generator
 
 GS : (Type -> Type) -> Type -> Type
-GS m t = Eff m [Gamestate ::: STATE Gamestate, RND] t
+GS m t = { [Gamestate ::: STATE Gamestate, RND] } Eff m t 
 
 moveBullets : Gamestate -> Gamestate
 moveBullets gs = let bullets' = movebs (bullets gs) in
@@ -50,12 +50,12 @@ removeHit gs = let bs = bullets gs in
                let (bs', as') = checkHit bs as in
                record { bullets = bs', aliens = as' } gs
 
-drawBullets : List (Int, Int) -> Eff IO [SDL_ON] ()
+drawBullets : List (Int, Int) -> { [SDL_ON] } Eff IO ()
 drawBullets [] = return ()
 drawBullets ((x, y) :: bs) = do rectangle red (x-1) (y-4) 2 8
                                 drawBullets bs
 
-drawBombs : List (Int, Int) -> Eff IO [SDL_ON] ()
+drawBombs : List (Int, Int) -> { [SDL_ON] } Eff IO ()
 drawBombs [] = return ()
 drawBombs ((x, y) :: bs) = do rectangle yellow (x-1) (y-4) 2 8
                               drawBombs bs

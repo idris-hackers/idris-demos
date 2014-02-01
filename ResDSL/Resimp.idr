@@ -105,7 +105,7 @@ using (i: Fin n, gam : Vect n Ty, gam' : Vect n Ty, gam'' : Vect n Ty)
 
 {-- Control structures --}
 
-       Lift   : |(action:IO a) -> Res gam gam (R a)
+       Lift   : IO a -> Res gam gam (R a)
        Check  : (p:HasType gam i (Choice (interpTy a) (interpTy b))) ->
                 (failure:Res (update gam p a) (update gam p c) t) ->
                 (success:Res (update gam p b) (update gam p c) t) ->
@@ -118,6 +118,9 @@ using (i: Fin n, gam : Vect n Ty, gam' : Vect n Ty, gam'' : Vect n Ty)
 
   ioret : a -> IO a
   ioret = return
+
+  iolift : IO a -> Res gam gam (R a)
+  iolift = Lift
 
   interp : Env gam -> [static] (e : Res gam gam' t) ->
            (Env gam' -> interpTy t -> IO u) -> IO u

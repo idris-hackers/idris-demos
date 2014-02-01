@@ -42,8 +42,10 @@ syntax if opened [f] then [e] else [t] = Check f t e
 readH : String -> RES ()
 readH fn = res (do let x = open fn Reading
                    if opened x then
-                       do str <- rreadLine x
-                          rputStrLn str
+                       do While (do e <- reof x
+                                    Return (not e))
+                                (do str <- rreadLine x
+                                    Lift (putStrLn str))
                           rclose x
                        else rputStrLn "Error")
 

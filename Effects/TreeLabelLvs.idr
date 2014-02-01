@@ -17,8 +17,8 @@ testTree = Node (Node Leaf "One" (Node Leaf "Two" Leaf))
 data Tag : Type where
 data Leaves : Type where
 
-label : Tree a -> Eff m  [Leaves ::: STATE Int,
-                          Tag ::: STATE Int] (Tree (Int, a))
+label : Tree a -> { [Leaves ::: STATE Int, Tag ::: STATE Int] } 
+                  Eff m (Tree (Int, a))
 label Leaf = do Leaves :- update (+1)
                 return Leaf
 label (Node l x r) = do l' <- label l 
@@ -28,8 +28,9 @@ label (Node l x r) = do l' <- label l
                         return (Node l' (lbl, x) r')
 
 main : IO ()
-main = do let ([Leaves := l, _], x) = runPureEnv [Leaves := 0, Tag := 1] (label testTree)
-          print (l, flattenTree x)
+main = do -- let ([Leaves := l, _], x) 
+          let x = runPureInit [default, Tag := 1] (label testTree)
+          print (flattenTree x)
 
 
 

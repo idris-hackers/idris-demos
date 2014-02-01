@@ -17,7 +17,7 @@ testTree = Node (Node Leaf "One" (Node Leaf "Two" Leaf))
 data Tag : Type where
 data Leaves : Type where
 
-label : Tree a -> Eff m  [STATE Int] (Tree (Int, a))
+label : Tree a -> { [STATE Int] } Eff m (Tree (Int, a))
 label Leaf = return Leaf
 label (Node l x r) = do l' <- label l 
                         lbl <- get
@@ -26,7 +26,7 @@ label (Node l x r) = do l' <- label l
                         return (Node l' (lbl, x) r')
 
 main : IO ()
-main = do let t = runPure [1] (label testTree)
+main = do let t = runPure (do put 1; label testTree)
           print (flattenTree t)
 
 

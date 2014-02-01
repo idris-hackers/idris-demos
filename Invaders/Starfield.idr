@@ -11,7 +11,7 @@ import Rnd
 data Starfield : Type where -- for labelling state
 
 StarEff : (Type -> Type) -> Type -> Type
-StarEff m t = Eff m [Starfield ::: STATE (List (Int, Int)), RND] t
+StarEff m t = { [Starfield ::: STATE (List (Int, Int)), RND] } Eff m t
 
 initStarfield : List (Int, Int) -> Nat -> StarEff m ()
 initStarfield acc Z = Starfield :- put acc
@@ -25,7 +25,7 @@ updateStarfield = do xs <- Starfield :- get
                      xs' <- upd [] xs
                      Starfield :- put xs'
  where
-  upd : List (Int, Int) -> List (Int, Int) -> Eff m [RND] (List (Int, Int))
+  upd : List (Int, Int) -> List (Int, Int) -> { [RND] } Eff m (List (Int, Int))
   upd acc [] = return acc
   upd acc ((x, y) :: xs)
       = if (y > 479) then do
@@ -34,7 +34,7 @@ updateStarfield = do xs <- Starfield :- get
            else
              upd ((x, y+1) :: acc) xs
 
-drawStarfield : List (Int, Int) -> Eff IO [SDL_ON] ()
+drawStarfield : List (Int, Int) -> { [SDL_ON] } Eff IO ()
 drawStarfield [] = return ()
 drawStarfield ((x, y) :: xs) = do line white x y x y
                                   drawStarfield xs

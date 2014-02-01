@@ -20,12 +20,12 @@ data Frames : Type where -- empty type, just for labelling
 -- generation and console I/O
 
 Prog : Type -> Type -> Type
-Prog i t = Eff IO [SDL i, 
-                   Frames ::: STATE Integer,
-                   Gamestate ::: STATE Gamestate,
-                   Starfield ::: STATE (List (Int, Int)),
-                   RND,
-                   STDIO] t
+Prog i t = { [SDL i, 
+              Frames ::: STATE Integer,
+              Gamestate ::: STATE Gamestate,
+              Starfield ::: STATE (List (Int, Int)),
+              RND,
+              STDIO] } Eff IO t
 
 -- Convenient shorthand for initialised SDL
 Running : Type -> Type
@@ -39,14 +39,15 @@ emain = do initialise 640 480
            quit
   where 
         draw : Running ()
-        draw = do rectangle black 0 0 640 480
+        draw = with Effects do 
+                  rectangle black 0 0 640 480
                   drawStarfield !(Starfield :- get)
                   gs <- Gamestate :- get
                   drawBullets (bullets gs)
                   drawBombs (bombs gs)
                   drawAliens (aliens gs)
-                  -- Draw ship
-                  (x, y) <- getPos 
+                  p <- getPos 
+                  let (x, y) = p
                   rectangle blue (x-10) (y-10) 20 20
                   rectangle blue (x-1) (y-20) 2 10
                   flip

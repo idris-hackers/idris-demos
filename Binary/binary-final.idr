@@ -15,7 +15,8 @@ infixl 5 #
 
 data Binary : (width : Nat) -> (value : Nat) -> Type where
      zero : Binary Z Z
-     (#)  : Binary w v -> Bit bit -> Binary (S w) (bit + 2 * v)
+     (#)  : %erase v
+            Binary w v -> (p : Bit bit) -> Binary (S w) (bit + 2 * v)
 
 instance Show (Binary w k) where
      show zero = ""
