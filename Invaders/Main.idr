@@ -74,7 +74,7 @@ emain = do initialise 640 480
                        when !(process !poll) eventLoop
 
 main : IO ()
-main = run [(), Frames := 0,
+main = runInit [(), Frames := 0,
                 Gamestate := initState,
                 Starfield := List.Nil,
                 1234567890,
