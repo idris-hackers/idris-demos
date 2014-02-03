@@ -45,7 +45,7 @@ readH fn = res (do let x = open fn Reading
                        do While (do e <- reof x
                                     Return (not e))
                                 (do str <- rreadLine x
-                                    Lift (putStrLn str))
+                                    Lift (putStr str))
                           rclose x
                        else rputStrLn "Error")
 
