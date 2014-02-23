@@ -47,7 +47,10 @@ initState w = let xs = letters w in
 -- RULES
 -----------------------------------------------------------------------
 
-{- Now, the rules of the game, written as an Effect.  -}
+{- Now, the rules of the game, written as an Effect. 
+We can think of the rules as giving a protocol that the game player and
+the machine must follow for an implementation of the game to make sense.
+-}
 
 data Hangman : Effect where
 
