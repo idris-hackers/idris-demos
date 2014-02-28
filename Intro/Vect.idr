@@ -10,11 +10,6 @@ To write these functions in vim:
 -}
 
 append : Vect n a -> Vect m a -> Vect (n + m) a
-append [] ys = ys
-append (x :: xs) ys = x :: (append xs ys)
 
-vzipWith : (a -> b -> c) -> Vect n a -> Vect n b -> Vect n c
-vzipWith f [] [] = []
-vzipWith f (x :: xs) (y :: ys) = f x y :: (vzipWith f xs ys)
-
+vadd : Vect n Int -> Vect n Int -> Vect n Int
 
