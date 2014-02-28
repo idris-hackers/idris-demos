@@ -11,5 +11,5 @@ To write these functions in vim:
 
 append : Vect n a -> Vect m a -> Vect (n + m) a
 
-vadd : Vect n Int -> Vect n Int -> Vect n Int
+vZipWith : (a -> b -> c) -> Vect n a -> Vect n b -> Vect n c
 

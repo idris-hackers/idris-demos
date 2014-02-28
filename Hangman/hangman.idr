@@ -24,13 +24,15 @@ data Hangman : HState -> Type where
                 (missing : Vect m Char) ->
                 Hangman (Running guesses m)
 
--- Some candidate words. We'll use programming languages.
--- I used \o to infer the length :).
+{- Some candidate words. We'll use programming languages. We don't want to
+write the length explicitly, so infer it with a proof search. -}
 
-words : Vect 10 String 
-words = ["idris","agda","haskell","miranda",
+words : ?wlen 
+words = with Vect ["idris","agda","haskell","miranda",
          "java","javascript","fortran","basic",
          "coffeescript","rust"]
+
+wlen = proof search 
 
 instance Default (Hangman NotRunning) where
     default = Init
