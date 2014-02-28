@@ -1,6 +1,8 @@
 module Main
 
 import Effect.StdIO
+import Effect.System
+import Effect.Random
 import VectMissing
 
 -----------------------------------------------------------------------
@@ -21,6 +23,14 @@ data Hangman : HState -> Type where
                 (got : List Char) ->
                 (missing : Vect m Char) ->
                 Hangman (Running guesses m)
+
+-- Some candidate words. We'll use programming languages.
+-- I used \o to infer the length :).
+
+words : Vect 10 String 
+words = ["idris","agda","haskell","miranda",
+         "java","javascript","fortran","basic",
+         "coffeescript","rust"]
 
 instance Default (Hangman NotRunning) where
     default = Init
@@ -126,12 +136,17 @@ using (m : Type -> Type)
 {- Finally, an implementation of the game which reads user input and calls
 the operations we defined above when appropriate. 
 
-The type indicates that the gmae must start in a running state, and get
-to a not running state (i.e. won or lost). -}
+The type indicates that the game must start in a running state, with some
+guesses available, and get to a not running state (i.e. won or lost). 
+Since we picked a word at random, we can't actually make the assumption there
+were valid letters in it!
+-}
 
-game : { [HANGMAN (Running (S g) (S w)), STDIO] ==> 
+game : { [HANGMAN (Running (S g) w), STDIO] ==> 
          [HANGMAN NotRunning, STDIO] } Eff IO ()
-game = do putStrLn (show !Get)
+game {w=Z} = Won 
+game {w=S _}
+     = do putStrLn (show !Get)
           putStr "Enter guess: "
           let guess = trim !getStr
           case choose (not (guess == "")) of
@@ -155,8 +170,10 @@ game = do putStrLn (show !Get)
 
 {- It typechecks! Ship it! -}
 
-runGame : { [HANGMAN NotRunning, STDIO] } Eff IO ()
-runGame = do NewWord "sausage machine"
+runGame : { [HANGMAN NotRunning, RND, SYSTEM, STDIO] } Eff IO ()
+runGame = do srand (cast !time)
+             let w = index !(rndFin _) words
+             NewWord w
              game
              putStrLn (show !Get)
 
