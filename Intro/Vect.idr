@@ -1,4 +1,4 @@
-module Vect
+module Main
 
 {-
 To write these functions in vim:

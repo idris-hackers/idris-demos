@@ -32,7 +32,7 @@ words = with Vect ["idris","agda","haskell","miranda",
          "java","javascript","fortran","basic",
          "coffeescript","rust"]
 
-wlen = proof search 
+wlen = proof search
 
 instance Default (Hangman NotRunning) where
     default = Init
@@ -82,8 +82,9 @@ data HangmanRules : Effect where
 
      Guess : (x : Char) ->
              { Hangman (Running (S g) (S w)) ==>
-               {inword} if inword then Hangman (Running (S g) w)
-                                  else Hangman (Running g (S w)) }
+               {inword} (case inword of
+                             True => Hangman (Running (S g) w)
+                             False => Hangman (Running g (S w))) }
                 HangmanRules Bool
 
 -- The 'Won' operation requires that there are no missing letters
@@ -107,6 +108,29 @@ data HangmanRules : Effect where
 
 HANGMAN : HState -> EFFECT
 HANGMAN h = MkEff (Hangman h) HangmanRules
+
+-- Promote explicit effecst to Eff programs
+
+guess : Char ->
+        { [HANGMAN (Running (S g) (S w))] ==>
+          {inword} [HANGMAN (case inword of
+                                  True => Running (S g) w
+                                  False => Running g (S w))] } Eff m Bool
+guess c = effect (Main.Guess c)
+
+won : { [HANGMAN (Running g 0)] ==> [HANGMAN NotRunning]} Eff m ()
+won = effect Won
+
+lost : { [HANGMAN (Running 0 g)] ==> [HANGMAN NotRunning]} Eff m ()
+lost = effect Lost
+
+new_word : (w : String) ->
+           { [HANGMAN h] ==> 
+             [HANGMAN (Running 6 (length (letters w)))]} Eff m ()
+new_word w = effect (NewWord w)
+
+get : { [HANGMAN h] } Eff m (Hangman h)
+get = effect Get
 
 -----------------------------------------------------------------------
 -- IMPLEMENTATION OF THE RULES
@@ -146,9 +170,9 @@ were valid letters in it!
 
 game : { [HANGMAN (Running (S g) w), STDIO] ==> 
          [HANGMAN NotRunning, STDIO] } Eff IO ()
-game {w=Z} = Won 
+game {w=Z} = won 
 game {w=S _}
-     = do putStrLn (show !Get)
+     = do putStrLn (show !get)
           putStr "Enter guess: "
           let guess = trim !getStr
           case choose (not (guess == "")) of
@@ -160,14 +184,14 @@ game {w=S _}
                              [HANGMAN NotRunning, STDIO] }
                            Eff IO ()
     processGuess {g} {w} c
-      = case !(Main.Guess c) of
+      = case !(guess c) of
              True => do putStrLn "Good guess!"
                         case w of
-                             Z => Won 
+                             Z => won
                              (S k) => game
              False => do putStrLn "No, sorry"
                          case g of
-                              Z => Lost
+                              Z => lost
                               (S k) => game
 
 {- It typechecks! Ship it! -}
@@ -175,9 +199,9 @@ game {w=S _}
 runGame : { [HANGMAN NotRunning, RND, SYSTEM, STDIO] } Eff IO ()
 runGame = do srand (cast !time)
              let w = index !(rndFin _) words
-             NewWord w
+             new_word w
              game
-             putStrLn (show !Get)
+             putStrLn (show !get)
 
 {- I made a couple of mistakes while writing this. For example, the following 
 were caught by the type checker:
@@ -190,4 +214,3 @@ were caught by the type checker:
 
 main : IO ()
 main = run runGame
-
