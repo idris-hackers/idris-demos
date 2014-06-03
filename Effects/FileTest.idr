@@ -7,7 +7,7 @@ import Control.IOExcept
 
 FileIO : Type -> Type -> Type
 FileIO st t
-  = { [FILE_IO st, STDIO, 'Count ::: STATE Int] } Eff IO t 
+  = { [FILE_IO st, STDIO, STATE Int] } Eff IO t 
 
 readFile : FileIO (OpenFile Read) (List String)
 readFile = readAcc [] where
@@ -15,18 +15,23 @@ readFile = readAcc [] where
     readAcc acc = do e <- eof
                      if (not e)
                         then do str <- readLine
-                                'Count :- put (!('Count :- get) + 1)
+                                put (!get + 1)
                                 readAcc (str :: acc)
                         else return (reverse acc)
 
-testFile : FileIO () ()
-testFile = case !(open "testFile" Read) of
-                 True => do putStrLn (show !readFile)
-                            close
-                            putStrLn (show !('Count :- get))
-                 False => putStrLn ("Error!")
+dumpFile : String -> FileIO () ()
+dumpFile fname = do ok <- open fname Read
+                    toEff [FILE_IO _, _, _] $ 
+                     case ok of
+                       True => do num <- get
+                                  putStrLn (show !get ++ "\n" ++
+                                            show !readFile)
+                                  close
+                       False => putStrLn ("Error!")
+                    putStrLn "DONE!"
+                    return ()
 
 main : IO ()
-main = run testFile
+main = run $ dumpFile "testFile"
 
 

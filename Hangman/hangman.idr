@@ -116,21 +116,21 @@ guess : Char ->
           {inword} [HANGMAN (case inword of
                                   True => Running (S g) w
                                   False => Running g (S w))] } Eff m Bool
-guess c = effect (Main.Guess c)
+guess c = call (Main.Guess c)
 
 won : { [HANGMAN (Running g 0)] ==> [HANGMAN NotRunning]} Eff m ()
-won = effect Won
+won = call Won
 
 lost : { [HANGMAN (Running 0 g)] ==> [HANGMAN NotRunning]} Eff m ()
-lost = effect Lost
+lost = call Lost
 
 new_word : (w : String) ->
            { [HANGMAN h] ==> 
              [HANGMAN (Running 6 (length (letters w)))]} Eff m ()
-new_word w = effect (NewWord w)
+new_word w = call (NewWord w)
 
 get : { [HANGMAN h] } Eff m (Hangman h)
-get = effect Get
+get = call Get
 
 -----------------------------------------------------------------------
 -- IMPLEMENTATION OF THE RULES

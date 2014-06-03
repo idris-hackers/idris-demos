@@ -18,7 +18,7 @@ getRnd upper = do val <- rndInt 0 upper
 --                   putStrLn (show val)
                   return val
 
-eval : Expr -> { [RND, EXCEPTION String, STDIO, STATE Env] } Eff IO Integer 
+eval : Expr -> { [EXCEPTION String, RND, STDIO, STATE Env] } Eff IO Integer 
 eval (Var x) 
    = do vs <- get
         case lookup x vs of
@@ -37,7 +37,7 @@ testExpr = Add (Add (Var "foo") (Val 42)) (Random 100)
 runEval : List (String, Integer) -> Expr -> IO Integer
 runEval args expr = run (eval' expr)
   where eval' : Expr -> 
-                { [RND, EXCEPTION String, STDIO, STATE Env] } Eff IO Integer 
+                { [EXCEPTION String, RND, STDIO, STATE Env] } Eff IO Integer 
         eval' e = do put args
                      srand 1234567890
                      eval e
@@ -46,4 +46,3 @@ main = do putStr "Number: "
           x <- getLine
           val <- runEval [("foo", cast x)] testExpr
           putStrLn $ "Answer: " ++ show val
-
