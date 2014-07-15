@@ -18,7 +18,7 @@ data Tag : Type where
 data Leaves : Type where
 
 label : Tree a -> { [Leaves ::: STATE Int, Tag ::: STATE Int] } 
-                  Eff m (Tree (Int, a))
+                  Eff (Tree (Int, a))
 label Leaf = do Leaves :- update (+1)
                 return Leaf
 label (Node l x r) = do l' <- label l 

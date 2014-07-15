@@ -47,12 +47,12 @@ checkHit bs as = checkAll bs as [] []
             = checkAll bs asAcc [] (b :: bsAcc)
         checkAll [] as asAcc bsAcc = (bsAcc, as ++ asAcc)
              
-drawAliens : List Alien -> { [SDL_ON] } Eff IO ()
+drawAliens : List Alien -> { [SDL_ON] } Eff ()
 drawAliens [] = return ()
 drawAliens (a :: as) = do let (x, y) = Alien.position a
                           drawAlien x y
                           drawAliens as
-    where drawAlien : Int -> Int -> { [SDL_ON] } Eff IO ()
+    where drawAlien : Int -> Int -> { [SDL_ON] } Eff ()
           drawAlien x y = do ellipse green x y 20 16
                              ellipse red (x-8) (y-6) 3 3
                              ellipse red (x-8) (y+6) 3 3

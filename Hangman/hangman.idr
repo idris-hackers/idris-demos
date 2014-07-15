@@ -24,16 +24,6 @@ data Hangman : HState -> Type where
                 (missing : Vect m Char) ->
                 Hangman (Running guesses m)
 
-{- Some candidate words. We'll use programming languages. We don't want to
-write the length explicitly, so infer it with a proof search. -}
-
-words : ?wlen 
-words = with Vect ["idris","agda","haskell","miranda",
-         "java","javascript","fortran","basic",
-         "coffeescript","rust"]
-
-wlen = proof search
-
 instance Default (Hangman NotRunning) where
     default = Init
 
@@ -115,21 +105,21 @@ guess : Char ->
         { [HANGMAN (Running (S g) (S w))] ==>
           {inword} [HANGMAN (case inword of
                                   True => Running (S g) w
-                                  False => Running g (S w))] } Eff m Bool
+                                  False => Running g (S w))] } Eff Bool
 guess c = call (Main.Guess c)
 
-won : { [HANGMAN (Running g 0)] ==> [HANGMAN NotRunning]} Eff m ()
+won : { [HANGMAN (Running g 0)] ==> [HANGMAN NotRunning]} Eff ()
 won = call Won
 
-lost : { [HANGMAN (Running 0 g)] ==> [HANGMAN NotRunning]} Eff m ()
+lost : { [HANGMAN (Running 0 g)] ==> [HANGMAN NotRunning]} Eff ()
 lost = call Lost
 
 new_word : (w : String) ->
            { [HANGMAN h] ==> 
-             [HANGMAN (Running 6 (length (letters w)))]} Eff m ()
+             [HANGMAN (Running 6 (length (letters w)))]} Eff ()
 new_word w = call (NewWord w)
 
-get : { [HANGMAN h] } Eff m (Hangman h)
+get : { [HANGMAN h] } Eff (Hangman h)
 get = call Get
 
 -----------------------------------------------------------------------
@@ -142,8 +132,7 @@ whether the letter is in the word, and branch accordingly (and if it
 is in the word, update the vector of missing letters to be the right
 length). -}
 
-using (m : Type -> Type)
-  instance Handler HangmanRules m where
+instance Handler HangmanRules m where
     handle (MkH w g got []) Won k = k () (GameWon w)
     handle (MkH w Z got m) Lost k = k () (GameLost w)
 
@@ -168,8 +157,10 @@ Since we picked a word at random, we can't actually make the assumption there
 were valid letters in it!
 -}
 
+
+
 game : { [HANGMAN (Running (S g) w), STDIO] ==> 
-         [HANGMAN NotRunning, STDIO] } Eff IO ()
+         [HANGMAN NotRunning, STDIO] } Eff ()
 game {w=Z} = won 
 game {w=S _}
      = do putStrLn (show !get)
@@ -180,10 +171,11 @@ game {w=S _}
                (Right p) => do putStrLn "Invalid input!"
                                game
   where 
-    processGuess : Char -> { [HANGMAN (Running (S g) (S w)), STDIO] ==> 
+    processGuess : -- {g,w:_} ->
+                   Char -> { [HANGMAN (Running (S g) (S w)), STDIO] ==> 
                              [HANGMAN NotRunning, STDIO] }
-                           Eff IO ()
-    processGuess {g} {w} c
+                           Eff ()
+    processGuess {g} c {w}
       = case !(guess c) of
              True => do putStrLn "Good guess!"
                         case w of
@@ -194,9 +186,20 @@ game {w=S _}
                               Z => lost
                               (S k) => game
 
+{- Some candidate words. We'll use programming languages. We don't want to
+write the length explicitly, so infer it with a proof search. -}
+
+words : ?wlen 
+words = with Vect ["idris","agda","haskell","miranda",
+         "java","javascript","fortran","basic","racket",
+         "coffeescript","rust","purescript","clean","links",
+         "koka","cobol"]
+
+wlen = proof search
+
 {- It typechecks! Ship it! -}
 
-runGame : { [HANGMAN NotRunning, RND, SYSTEM, STDIO] } Eff IO ()
+runGame : { [HANGMAN NotRunning, RND, SYSTEM, STDIO] } Eff ()
 runGame = do srand (cast !time)
              let w = index !(rndFin _) words
              new_word w

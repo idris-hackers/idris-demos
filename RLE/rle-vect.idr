@@ -30,4 +30,3 @@ compressString xs = compress (fromList (unpack xs))
 
 main : IO ()
 main = putStrLn (compressString "foooobaaaarbaaaz")
-

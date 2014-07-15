@@ -22,8 +22,8 @@ initState = MkGamestate (320,400) 0 0 [] [] startAliens
 ---------
 -- Game state effect needs access to a random number generator
 
-GS : (Type -> Type) -> Type -> Type
-GS m t = { [Gamestate ::: STATE Gamestate, RND] } Eff m t 
+GS : Type -> Type
+GS t = { [Gamestate ::: STATE Gamestate, RND] } Eff t 
 
 moveBullets : Gamestate -> Gamestate
 moveBullets gs = let bullets' = movebs (bullets gs) in
@@ -50,20 +50,20 @@ removeHit gs = let bs = bullets gs in
                let (bs', as') = checkHit bs as in
                record { bullets = bs', aliens = as' } gs
 
-drawBullets : List (Int, Int) -> { [SDL_ON] } Eff IO ()
+drawBullets : List (Int, Int) -> { [SDL_ON] } Eff ()
 drawBullets [] = return ()
 drawBullets ((x, y) :: bs) = do rectangle red (x-1) (y-4) 2 8
                                 drawBullets bs
 
-drawBombs : List (Int, Int) -> { [SDL_ON] } Eff IO ()
+drawBombs : List (Int, Int) -> { [SDL_ON] } Eff ()
 drawBombs [] = return ()
 drawBombs ((x, y) :: bs) = do rectangle yellow (x-1) (y-4) 2 8
                               drawBombs bs
 
-randomDropBomb : GS m ()
+randomDropBomb : GS ()
 randomDropBomb = randomDrop (map (Alien.position) (aliens !(Gamestate :- get))) 
  where
-   randomDrop : List (Int, Int) -> GS m ()
+   randomDrop : List (Int, Int) -> GS ()
    randomDrop [] = return ()
    randomDrop ((x, y) :: as) 
         = do if (!(rndInt 1 3000) == 100)  
@@ -73,7 +73,7 @@ randomDropBomb = randomDrop (map (Alien.position) (aliens !(Gamestate :- get)))
                  else randomDrop as
 
 ---------
-updateGamestate : GS m ()
+updateGamestate : GS ()
 updateGamestate = do gs <- Gamestate :- get
                      let (x, y) = Gamestate.position gs
                      let (x', y') = (bounds 10 630 (x + xmovement gs), 
@@ -89,26 +89,26 @@ updateGamestate = do gs <- Gamestate :- get
                                  else if v > high then high
                                       else v
 
-getPos : GS m (Int, Int)
+getPos : GS (Int, Int)
 getPos = do s <- Gamestate :- get
             return (position s)
 
-xmove : Int -> GS m ()
+xmove : Int -> GS ()
 xmove x = do s <- Gamestate :- get
              Gamestate :- put (record { xmovement = x } s) 
 
-ymove : Int -> GS m ()
+ymove : Int -> GS ()
 ymove x = do s <- Gamestate :- get
              Gamestate :- put (record { ymovement = x } s) 
 
-addBullet : GS m ()
+addBullet : GS ()
 addBullet = do s <- Gamestate :- get
                let bs = bullets s
                (x, y) <- getPos
                Gamestate :- put (record { bullets = (x, y-10) :: bs } s)
 
 -- Deal with keypresses from SDL
-process : Maybe Event -> GS m Bool
+process : Maybe Event -> GS Bool
 process (Just AppQuit) = return False
 process (Just (KeyDown KeyLeftArrow))  = do xmove (-2); return True
 process (Just (KeyUp KeyLeftArrow))    = do xmove 0; return True

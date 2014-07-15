@@ -17,7 +17,7 @@ testTree = Node (Node Leaf "One" (Node Leaf "Two" Leaf))
 data Tag : Type where
 data Leaves : Type where
 
-label : Tree a -> { [STATE Int] } Eff m (Tree (Int, a))
+label : Tree a -> { [STATE Int] } Eff (Tree (Int, a))
 label Leaf = return Leaf
 label (Node l x r) = do l' <- label l 
                         lbl <- get

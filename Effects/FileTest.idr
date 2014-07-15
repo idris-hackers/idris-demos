@@ -7,7 +7,7 @@ import Control.IOExcept
 
 FileIO : Type -> Type -> Type
 FileIO st t
-  = { [FILE_IO st, STDIO, STATE Int] } Eff IO t 
+  = { [FILE_IO st, STDIO, STATE Int] } Eff t 
 
 readFile : FileIO (OpenFile Read) (List String)
 readFile = readAcc [] where
@@ -32,6 +32,6 @@ dumpFile fname = do ok <- open fname Read
                     return ()
 
 main : IO ()
-main = run $ dumpFile "testFile"
+main = run $ dumpFile "testfile"
 
 

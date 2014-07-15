@@ -25,7 +25,7 @@ Prog i t = { [SDL i,
               Gamestate ::: STATE Gamestate,
               Starfield ::: STATE (List (Int, Int)),
               RND,
-              STDIO] } Eff IO t
+              STDIO] } Eff t
 
 -- Convenient shorthand for initialised SDL
 Running : Type -> Type
@@ -33,7 +33,10 @@ Running t = Prog SDLSurface t
 
 -------
 emain : Prog () ()
-emain = do initialise 640 480
+emain = do putStrLn "Initialising"
+           putStrLn "..."
+           initialise 640 480
+           putStrLn "Initialised"
            initStarfield [] 200
            eventLoop
            quit
