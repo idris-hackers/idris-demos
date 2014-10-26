@@ -1,7 +1,7 @@
 package hangman
 
 modules = VectMissing, hangman 
-opts = "-p effects" 
+opts = "-p effects --dumpdefuns hangman.dc" 
 
 executable = hangman
 main = hangman

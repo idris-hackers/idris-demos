@@ -12,10 +12,12 @@ using (x : a, xs : Vect n a)
   isElem : DecEq a => (x : a) -> (xs : Vect n a) -> Maybe (IsElem x xs)
   isElem x [] = Nothing
   isElem x (y :: xs) with (decEq x y)
-    isElem x (x :: xs) | (Yes refl) = Just First
+    isElem x (x :: xs) | (Yes Refl) = Just First
     isElem x (y :: xs) | (No f) = Just (Later !(isElem x xs))
 
   shrink : (xs : Vect (S n) a) -> IsElem x xs -> Vect n a
   shrink (x :: ys) First = ys
   shrink (y :: []) (Later p) = absurd p
   shrink (y :: (x :: xs)) (Later p) = y :: shrink (x :: xs) p
+
+

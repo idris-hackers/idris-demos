@@ -16,7 +16,7 @@ rle [] = REnd
 rle (x :: xs) with (rle xs)
   rle (x :: []) | REnd = RChar 1 x REnd
   rle (x :: (rep n c ++ ys)) | (RChar n c rs) with (decEq x c)
-    rle (x :: (rep n x ++ ys)) | (RChar n x rs) | (Yes refl) 
+    rle (x :: (rep n x ++ ys)) | (RChar n x rs) | (Yes Refl) 
              = RChar (S n) x rs
     rle (x :: (rep n c ++ ys)) | (RChar n c rs) | (No f) 
              = RChar 1 x (RChar n c rs)
