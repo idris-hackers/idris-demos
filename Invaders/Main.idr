@@ -7,6 +7,7 @@ import Effect.State
 import Effect.StdIO
 
 import Rnd
+import Aliens
 import Starfield
 import Gamestate
 

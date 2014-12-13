@@ -2,6 +2,7 @@ module Starfield
 
 -- Background starfield effect
 
+import Effects
 import Effect.SDL
 import Effect.StdIO
 import Effect.State

@@ -1,5 +1,6 @@
 module Gamestate
 
+import Effects
 import Effect.State
 import Effect.SDL
 import Effect.StdIO

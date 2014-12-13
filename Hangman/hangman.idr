@@ -1,5 +1,6 @@
 module Main
 
+import Effects
 import Effect.StdIO
 import Effect.System
 import Effect.Random

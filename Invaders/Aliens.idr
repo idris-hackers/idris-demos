@@ -1,6 +1,7 @@
 module Aliens
 
 import Effect.SDL
+import Effects
 
 record Alien : Type where
     MkAlien : (position : (Int, Int)) ->
