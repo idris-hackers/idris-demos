@@ -1,5 +1,6 @@
 module Main
 
+import Effects
 import Effect.Select
 
 no_attack : (Int, Int) -> (Int, Int) -> Bool

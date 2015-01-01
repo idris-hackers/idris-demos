@@ -140,35 +140,34 @@ Main.ntbEven = proof {
 
 -- There is almost certainly an easier proof. I don't care, for now :)
 
-Main.adc_lemma_2 = proof {
-    intro c,w,v,bit0,num0;
-    intro b0,v1,bit1,num1,b1;
-    intro bc,x,x1,bx,bx1;
-    rewrite sym (plusZeroRightNeutral x);
-    rewrite sym (plusZeroRightNeutral v1);
-    rewrite sym (plusZeroRightNeutral (plus (plus x v) v1));
-    rewrite sym (plusZeroRightNeutral v);
-    intros;
-    rewrite sym (plusAssociative (plus c (plus bit0 (plus v v))) bit1 (plus v1 v1));
-    rewrite  (plusAssociative c (plus bit0 (plus v v)) bit1);
-    rewrite  (plusAssociative bit0 (plus v v) bit1);
-    rewrite plusCommutative bit1 (plus v v);
-    rewrite sym (plusAssociative c bit0 (plus bit1 (plus v v)));
-    rewrite sym (plusAssociative (plus c bit0) bit1 (plus v v));
-    rewrite sym b;
-    rewrite plusAssociative x1 (plus x x) (plus v v);
-    rewrite plusAssociative x x (plus v v);
-    rewrite sym (plusAssociative x v v);
-    rewrite plusCommutative v (plus x v);
-    rewrite sym (plusAssociative x v (plus x v));
-    rewrite (plusAssociative x1 (plus (plus x v) (plus x v)) (plus v1 v1));
-    rewrite sym (plusAssociative (plus (plus x v) (plus x v)) v1 v1);
-    rewrite  (plusAssociative (plus x v) (plus x v) v1);
-    rewrite (plusCommutative v1 (plus x v));
-    rewrite sym (plusAssociative (plus x v) v1 (plus x v));
-    rewrite (plusAssociative (plus (plus x v) v1) (plus x v) v1);
-    trivial;
-}
+Main.adc_lemma_2 = proof
+    intro w,v,num0,bit0
+    intro b0,v1,num1,bit1,b1
+    intro c,bc,x,bX,x1,bX1
+    rewrite sym (plusZeroRightNeutral x)
+    rewrite sym (plusZeroRightNeutral v1)
+    rewrite sym (plusZeroRightNeutral (plus (plus x v) v1))
+    rewrite sym (plusZeroRightNeutral v)
+    intros
+    rewrite sym (plusAssociative (plus c (plus bit0 (plus v v))) bit1 (plus v1 v1))
+    rewrite  (plusAssociative c (plus bit0 (plus v v)) bit1)
+    rewrite  (plusAssociative bit0 (plus v v) bit1)
+    rewrite plusCommutative bit1 (plus v v)
+    rewrite sym (plusAssociative c bit0 (plus bit1 (plus v v)))
+    rewrite sym (plusAssociative (plus c bit0) bit1 (plus v v))
+    rewrite sym b
+    rewrite plusAssociative x1 (plus x x) (plus v v)
+    rewrite plusAssociative x x (plus v v)
+    rewrite sym (plusAssociative x v v)
+    rewrite plusCommutative v (plus x v)
+    rewrite sym (plusAssociative x v (plus x v))
+    rewrite (plusAssociative x1 (plus (plus x v) (plus x v)) (plus v1 v1))
+    rewrite sym (plusAssociative (plus (plus x v) (plus x v)) v1 v1)
+    rewrite  (plusAssociative (plus x v) (plus x v) v1)
+    rewrite (plusCommutative v1 (plus x v))
+    rewrite sym (plusAssociative (plus x v) v1 (plus x v))
+    rewrite (plusAssociative (plus (plus x v) v1) (plus x v) v1)
+    trivial
 
 Main.adc_lemma_1 = proof {
     intros;

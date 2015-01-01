@@ -1,23 +1,14 @@
 module VectMissing
 
-using (x : a, xs : Vect n a)
-  data IsElem : a -> Vect n a -> Type where
-       First : IsElem x (x :: xs)
-       Later : IsElem x xs -> IsElem x (y :: xs)
+import Data.Fin
+import Data.Vect
 
-  instance Uninhabited (IsElem x []) where
-    uninhabited First impossible
-    uninhabited (Later p) impossible
+instance Uninhabited (Elem x []) where
+    uninhabited Here impossible
 
-  isElem : DecEq a => (x : a) -> (xs : Vect n a) -> Maybe (IsElem x xs)
-  isElem x [] = Nothing
-  isElem x (y :: xs) with (decEq x y)
-    isElem x (x :: xs) | (Yes Refl) = Just First
-    isElem x (y :: xs) | (No f) = Just (Later !(isElem x xs))
-
-  shrink : (xs : Vect (S n) a) -> IsElem x xs -> Vect n a
-  shrink (x :: ys) First = ys
-  shrink (y :: []) (Later p) = absurd p
-  shrink (y :: (x :: xs)) (Later p) = y :: shrink (x :: xs) p
+shrink : (xs : Vect (S n) a) -> Elem x xs -> Vect n a
+shrink (x :: ys) Here = ys
+shrink (y :: []) (There p) = absurd p
+shrink (y :: (x :: xs)) (There p) = y :: shrink (x :: xs) p
 
 

@@ -1,5 +1,8 @@
 module Resimp
 
+import public Data.Fin
+import Data.Vect
+
 -- IO operations which read a resource
 data Reader : Type -> Type where
     MkReader : IO a -> Reader a
@@ -46,8 +49,8 @@ using (i: Fin n, gam : Vect n Ty, gam' : Vect n Ty, gam'' : Vect n Ty)
   interpTy (a :-> b) = a -> interpTy b
 
   data HasType : Vect n Ty -> Fin n -> Ty -> Type where
-       stop : HasType (a :: gam) fZ a
-       pop  : HasType gam i b -> HasType (a :: gam) (fS i) b
+       stop : HasType (a :: gam) FZ a
+       pop  : HasType gam i b -> HasType (a :: gam) (FS i) b
 
   data Env : Vect n Ty -> Type where
        Nil : Env Nil

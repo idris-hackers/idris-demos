@@ -1,5 +1,6 @@
 module Main
 
+import Effects
 import Effect.State
 
 data Tree a = Leaf 

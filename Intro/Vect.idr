@@ -9,9 +9,12 @@ To write these functions in vim:
 
 -}
 
+data Vect : Nat -> Type -> Type where
+     Nil  : Vect Z a
+     (::) : a -> Vect k a -> Vect (S k) a
+
+%name Vect xs,ys,zs
+
 append : Vect n a -> Vect m a -> Vect (n + m) a
-append [] ys = ys
-append (x :: xs) ys = x :: append xs xs
 
 vZipWith : (a -> b -> c) -> Vect n a -> Vect n b -> Vect n c
-

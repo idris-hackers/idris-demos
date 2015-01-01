@@ -4,6 +4,9 @@ import Effects
 import Effect.StdIO
 import Effect.System
 import Effect.Random
+import Data.So
+import Data.Fin
+import Data.Vect
 import VectMissing
 
 -----------------------------------------------------------------------
@@ -142,8 +145,8 @@ instance Handler HangmanRules m where
 
     handle (MkH w (S g) got m) (Guess x) k =
       case isElem x m of
-           Nothing => k False (MkH w _ got m)
-           (Just p) => k True (MkH w _ (x :: got) (shrink m p))
+           No _ => k False (MkH w _ got m)
+           Yes p => k True (MkH w _ (x :: got) (shrink m p))
 
 -----------------------------------------------------------------------
 -- USER INTERFACE 
@@ -158,7 +161,8 @@ Since we picked a word at random, we can't actually make the assumption there
 were valid letters in it!
 -}
 
-
+soRefl : So x -> (x = True)
+soRefl Oh = Refl 
 
 game : { [HANGMAN (Running (S g) w), STDIO] ==> 
          [HANGMAN NotRunning, STDIO] } Eff ()
@@ -168,7 +172,7 @@ game {w=S _}
           putStr "Enter guess: "
           let guess = trim !getStr
           case choose (not (guess == "")) of
-               (Left p) => processGuess (strHead' guess p)
+               (Left p) => processGuess (strHead' guess (soRefl p))
                (Right p) => do putStrLn "Invalid input!"
                                game
   where 
