@@ -8,7 +8,7 @@ import Control.IOExcept
 
 FileIO : Type -> Type -> Type
 FileIO st t
-  = { [FILE_IO st, STDIO, STATE Int] } Eff t 
+  = Eff t [FILE_IO st, STDIO, STATE Int]
 
 readFile : FileIO (OpenFile Read) (List String)
 readFile = readAcc [] where
