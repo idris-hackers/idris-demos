@@ -3,11 +3,12 @@ module Aliens
 import Effect.SDL
 import Effects
 
-record Alien : Type where
-    MkAlien : (position : (Int, Int)) ->
-              (xmovement : Int) ->
-              (xstep : Int) ->
-              (ystep : Int) -> Alien
+record Alien where
+    constructor MkAlien 
+    position : (Int, Int)
+    xmovement : Int
+    xstep : Int
+    ystep : Int
 
 startAliens : List Alien
 startAliens = alienRow (-1) 100 ++

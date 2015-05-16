@@ -8,14 +8,14 @@ import Effect.StdIO
 import Aliens
 import Rnd
 
-record Gamestate : Type where
-    MkGamestate : (position : (Int, Int)) ->
-                  (xmovement : Int) ->
-                  (ymovement : Int) ->
-                  (bullets : List (Int, Int)) ->
-                  (bombs : List (Int, Int)) ->
-                  (aliens : List Alien) ->
-                  Gamestate
+record Gamestate where
+    constructor MkGamestate
+    position : (Int, Int)
+    xmovement : Int
+    ymovement : Int
+    bullets : List (Int, Int)
+    bombs : List (Int, Int)
+    aliens : List Alien
 
 initState : Gamestate
 initState = MkGamestate (320,400) 0 0 [] [] startAliens
