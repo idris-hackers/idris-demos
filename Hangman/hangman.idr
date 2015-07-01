@@ -205,7 +205,7 @@ wlen = proof search
 {- It typechecks! Ship it! -}
 
 runGame : { [HANGMAN NotRunning, RND, SYSTEM, STDIO] } Eff ()
-runGame = do srand (cast !time)
+runGame = do srand !time
              let w = index !(rndFin _) words
              new_word w
              game
