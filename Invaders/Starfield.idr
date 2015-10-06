@@ -16,10 +16,10 @@ StarEff t = { [Starfield ::: STATE (List (Int, Int)), RND] } Eff t
 
 initStarfield : List (Int, Int) -> Nat -> StarEff ()
 initStarfield acc Z = Starfield :- put acc
-initStarfield acc n 
+initStarfield acc (S n)
     = do x <- rndInt 0 639
          y <- rndInt 0 479
-         initStarfield ((x, y) :: acc) (n - 1)
+         initStarfield ((x, y) :: acc) n
 
 updateStarfield : StarEff ()
 updateStarfield = do xs <- Starfield :- get
