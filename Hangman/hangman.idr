@@ -8,10 +8,8 @@ import Data.So
 import Data.Fin
 import Data.Vect
 import VectMissing
-
------------------------------------------------------------------------
+------
 -- GAME STATE
------------------------------------------------------------------------
 
 {- First, the game state, HState, where the type specifies how many guesses
 are left and how many missing letters there are still to get. -}
@@ -55,10 +53,7 @@ letters x with (strM x)
 initState : (x : String) -> Hangman (Running 6 (length (letters x)))
 initState w = let xs = letters w in
                   MkH w _ [] (fromList (letters w))
-
------------------------------------------------------------------------
 -- RULES
------------------------------------------------------------------------
 
 {- Now, the rules of the game, written as an Effect. 
 We can think of the rules as giving a protocol that the game player and
@@ -75,60 +70,65 @@ data HangmanRules : Effect where
 -- the number of missing letters, if not, reduce the number of guesses left
 
      Guess : (x : Char) ->
-             { Hangman (Running (S g) (S w)) ==>
-               {inword} Hangman (case inword of
-                             True => (Running (S g) w)
-                             False => (Running g (S w))) }
-                HangmanRules Bool
+             sig HangmanRules Bool
+                 (Hangman (Running (S g) (S w)))
+                 (\inword => Hangman (case inword of
+                                 True => (Running (S g) w)
+                                 False => (Running g (S w))))
 
 -- The 'Won' operation requires that there are no missing letters
 
-     Won  : { Hangman (Running g 0) ==> Hangman NotRunning } HangmanRules ()
+     Won  : sig HangmanRules () (Hangman (Running g 0))
+                                (Hangman NotRunning)
 
 -- The 'Lost' operation requires that there are no guesses left
 
-     Lost : { Hangman (Running 0 g) ==> Hangman NotRunning } HangmanRules ()
+     Lost : sig HangmanRules () (Hangman (Running 0 w))
+                                (Hangman NotRunning)
 
 -- Set up a new game, initialised with 6 guesses and the missing letters in
 -- the given word. Note that if there are no letters in the word, we won't
 -- be able to run 'Guess'!
 
      NewWord : (w : String) -> 
-               { h ==> Hangman (Running 6 (length (letters w))) } HangmanRules ()
+               sig HangmanRules () h
+                   (Hangman (Running 6 (length (letters w))))
 
 -- Finally, allow us to get the current game state
+-- This is a String representing the currently known letters, rather than
+-- the entire state
      
-     Get  : { h } HangmanRules h
+     Get  : sig HangmanRules String (Hangman h)
 
 HANGMAN : HState -> EFFECT
 HANGMAN h = MkEff (Hangman h) HangmanRules
 
--- Promote explicit effecst to Eff programs
+------
+-- Promote explicit effects to Eff programs
 
 guess : Char ->
-        { [HANGMAN (Running (S g) (S w))] ==>
-          {inword} [HANGMAN (case inword of
+        Eff Bool [HANGMAN (Running (S g) (S w))]
+                 (\inword => [HANGMAN (case inword of
                                   True => Running (S g) w
-                                  False => Running g (S w))] } Eff Bool
+                                  False => Running g (S w))])
 guess c = call (Main.Guess c)
 
-won : { [HANGMAN (Running g 0)] ==> [HANGMAN NotRunning]} Eff ()
+won : Eff () [HANGMAN (Running g 0)] [HANGMAN NotRunning]
 won = call Won
 
-lost : { [HANGMAN (Running 0 g)] ==> [HANGMAN NotRunning]} Eff ()
+lost : Eff () [HANGMAN (Running 0 g)] [HANGMAN NotRunning]
 lost = call Lost
 
-new_word : (w : String) ->
-           { [HANGMAN h] ==> 
-             [HANGMAN (Running 6 (length (letters w)))]} Eff ()
+new_word : (w : String) -> 
+           Eff () [HANGMAN h] 
+                  [HANGMAN (Running 6 (length (letters w)))]
 new_word w = call (NewWord w)
 
-get : { [HANGMAN h] } Eff (Hangman h)
+get : Eff String [HANGMAN h]
 get = call Get
 
------------------------------------------------------------------------
+------
 -- IMPLEMENTATION OF THE RULES
------------------------------------------------------------------------
 
 {- This effect handler simply updates the game state as necessary for
 each operation. 'Guess' is slightly tricky, in that it needs to check
@@ -140,7 +140,7 @@ instance Handler HangmanRules m where
     handle (MkH w g got []) Won k = k () (GameWon w)
     handle (MkH w Z got m) Lost k = k () (GameLost w)
 
-    handle st Get k = k st st
+    handle st Get k = k (show st) st
     handle st (NewWord w) k = k () (initState w)
 
     handle (MkH w (S g) got m) (Guess x) k =
@@ -148,9 +148,8 @@ instance Handler HangmanRules m where
            No _ => k False (MkH w _ got m)
            Yes p => k True (MkH w _ (x :: got) (shrink m p))
 
------------------------------------------------------------------------
+------
 -- USER INTERFACE 
------------------------------------------------------------------------
 
 {- Finally, an implementation of the game which reads user input and calls
 the operations we defined above when appropriate. 
@@ -164,11 +163,11 @@ were valid letters in it!
 soRefl : So x -> (x = True)
 soRefl Oh = Refl 
 
-game : { [HANGMAN (Running (S g) w), STDIO] ==> 
-         [HANGMAN NotRunning, STDIO] } Eff ()
+game : Eff () [HANGMAN (Running (S g) w), STDIO]
+              [HANGMAN NotRunning, STDIO]
 game {w=Z} = won 
 game {w=S _}
-     = do putStrLn (show !get)
+     = do putStrLn !get
           putStr "Enter guess: "
           let guess = trim !getStr
           case choose (not (guess == "")) of
@@ -176,10 +175,8 @@ game {w=S _}
                (Right p) => do putStrLn "Invalid input!"
                                game
   where 
-    processGuess : -- {g,w:_} ->
-                   Char -> { [HANGMAN (Running (S g) (S w)), STDIO] ==> 
-                             [HANGMAN NotRunning, STDIO] }
-                           Eff ()
+    processGuess : Char -> Eff () [HANGMAN (Running (S g) (S w)), STDIO]
+                                  [HANGMAN NotRunning, STDIO]
     processGuess {g} c {w}
       = case !(guess c) of
              True => do putStrLn "Good guess!"
@@ -194,22 +191,22 @@ game {w=S _}
 {- Some candidate words. We'll use programming languages. We don't want to
 write the length explicitly, so infer it with a proof search. -}
 
-words : ?wlen 
-words = with Vect ["idris","agda","haskell","miranda",
+words : Vect ?wlen String
+words = ["idris","agda","haskell","miranda","scala",
          "java","javascript","fortran","basic","racket",
-         "coffeescript","rust","purescript","clean","links",
-         "koka","cobol"]
+         "coffeescript","rust","purescript","links",
+         "cobol","fsharp"]
 
 wlen = proof search
 
 {- It typechecks! Ship it! -}
 
-runGame : { [HANGMAN NotRunning, RND, SYSTEM, STDIO] } Eff ()
+runGame : Eff () [HANGMAN NotRunning, RND, SYSTEM, STDIO]
 runGame = do srand !time
              let w = index !(rndFin _) words
              new_word w
              game
-             putStrLn (show !get)
+             putStrLn !get
 
 {- I made a couple of mistakes while writing this. For example, the following 
 were caught by the type checker:

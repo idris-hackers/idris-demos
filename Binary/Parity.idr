@@ -8,10 +8,10 @@ parity : (n:Nat) -> Parity n
 parity Z     = even {n=Z}
 parity (S Z) = odd {n=Z}
 parity (S (S k)) with (parity k)
-    parity (S (S (j + j)))     | even ?= even {n=S j}
-    parity (S (S (S (j + j)))) | odd  ?= odd {n=S j}
+    parity (S (S (j + j)))     | even = rewrite plusSuccRightSucc j j in even {n=S j}
+    parity (S (S (S (j + j)))) | odd  = rewrite plusSuccRightSucc j j in odd {n=S j}
 
-
+{-
 parity_lemma_2 = proof {
     intro;
     intro;
@@ -25,4 +25,4 @@ parity_lemma_1 = proof {
     rewrite sym (plusSuccRightSucc j j);
     trivial;
 }
-
+-}

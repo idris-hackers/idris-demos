@@ -22,7 +22,7 @@ readFile = readAcc [] where
 
 dumpFile : String -> FileIO () ()
 dumpFile fname = do ok <- open fname Read
-                    toEff [FILE_IO _, _, _] $ 
+                    staticEff $ -- toEff [FILE_IO _, _, _] $ 
                      case ok of
                        True => do num <- get
                                   putStrLn (show !get ++ "\n" ++
