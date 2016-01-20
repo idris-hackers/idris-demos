@@ -17,11 +17,13 @@ data Result = TooLow | Correct | TooHigh
 
 data GuessNumber : Effect where
      GuessNum : Int ->
-             { GameInfo (Running (S k)) ==>
-               {guess} GameInfo (case guess of
+             sig GuessNumber Result
+                 (GameInfo (Running (S k)))
+                 (\guess =>
+                       GameInfo (case guess of
                                       Correct => NotRunning
-                                      _ => Running k) } GuessNumber Result
-     Quit : { GameInfo (Running Z) ==> GameInfo NotRunning } GuessNumber Int
+                                      _ => Running k)) 
+     Quit : sig GuessNumber Int (GameInfo (Running Z)) (GameInfo NotRunning)
 
 GUESS : GameState -> EFFECT
 GUESS t = MkEff (GameInfo t) GuessNumber
@@ -32,10 +34,10 @@ guess : Int -> { [GUESS (Running (S k))] ==>
                                       _ => Running k)] } Eff Result 
 guess n = call $ GuessNum n
 
-quit : { [GUESS (Running Z)] ==> [GUESS NotRunning] } Eff Int
+quit : Eff Int [GUESS (Running Z)] [GUESS NotRunning]
 quit = call Quit
 
-instance Handler GuessNumber m where
+Handler GuessNumber m where
     handle (Number g n) (GuessNum i) k with (compare i n)
       handle (Number (S g) n) (GuessNum i) k | LT = k TooLow (Number g n)
       handle (Number Z n) (GuessNum i) k | LT = k TooLow (Lost n)
@@ -44,8 +46,7 @@ instance Handler GuessNumber m where
       handle (Number (S g) n) (GuessNum i) k | GT = k TooHigh (Number g n)
     handle (Lost n) Quit k = k n Init
 
-game : { [GUESS (Running n), STDIO] ==>
-         [GUESS NotRunning, STDIO] } Eff ()
+game : Eff () [GUESS (Running n), STDIO] [GUESS NotRunning, STDIO]
 game {n=Z} = do putStrLn "You lose"
                 ans <- quit
                 putStrLn $ "The answer was " ++ show ans
