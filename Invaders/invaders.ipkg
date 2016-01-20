@@ -1,7 +1,7 @@
 package invaders
 
 modules = Starfield, Gamestate, Aliens, Rnd, Main 
-opts = "-p effects -p sdl --warnreach --dumpcases invaders.dc" 
+opts = "-p effects -p sdl --warnreach" 
 
 executable = invaders
 main = Main

@@ -5,8 +5,7 @@ import Effects
 data Random : Effect where
      GetRandom : Random Int Int (\v => Int)
 
-using (m : Type -> Type)
-  instance Handler Random m where
+Handler Random m where
      handle seed GetRandom k
               = let seed' = assert_total ((1664525 * seed + 1013904223) `prim__sremInt` (pow 2 32)) in
                     k seed' seed'
