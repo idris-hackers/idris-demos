@@ -1,10 +1,8 @@
-module adder
+AdderType : (numargs : Nat) -> Type -> Type
+AdderType Z numType = numType
+AdderType (S k) numType = (next : numType) -> AdderType k numType
 
-adderTy : Nat -> Type
-adderTy Z = Nat 
-adderTy (S k) = Nat -> adderTy k
-
-adder : (k : Nat) -> Nat -> adderTy k
-adder Z     acc = acc
-adder (S k) acc = \ x => adder k (x + acc)
-
+adder : Num numType =>
+        (numargs : Nat) -> numType -> AdderType numargs numType
+adder Z acc = acc
+adder (S k) acc = \next => adder k (next + acc)
