@@ -11,29 +11,30 @@ data DoorInfo : DoorState -> Type where
 data Jam = Jammed | OK
 
 data Door : Effect where
-      OpenDoor : { DoorInfo Closed ==> 
-                   {jammed} DoorInfo (case jammed of
+      OpenDoor : sig Door Jam (DoorInfo Closed)
+                           (\jammed =>
+                            DoorInfo (case jammed of
                                            Jammed => Closed
-                                           OK => Open) } Door Jam
-      CloseDoor : { DoorInfo Open ==> DoorInfo Closed } Door ()
-      Knock : { DoorInfo Closed } Door ()
+                                           OK => Open))
+      CloseDoor : sig Door () (DoorInfo Open) (DoorInfo Closed)
+      Knock : sig Door () (DoorInfo Closed)
 
 DOOR : DoorState -> EFFECT
 DOOR t = MkEff (DoorInfo t) Door
 
-openDoor : { [DOOR Closed] ==> 
-             {jammed} [DOOR (case jammed of
-                                  Jammed => Closed
-                                  OK => Open)] } Eff Jam
+openDoor : Eff Jam [DOOR Closed]
+                   (\jammed => [DOOR (case jammed of
+                                        Jammed => Closed
+                                        OK => Open)])
 openDoor = call OpenDoor
 
-closeDoor : { [DOOR Open] ==> [DOOR Closed] } Eff ()
+closeDoor : Eff () [DOOR Open] [DOOR Closed]
 closeDoor = call CloseDoor
 
-knock : { [DOOR Closed] } Eff ()
+knock : Eff () [DOOR Closed]
 knock = call Knock
 
-doorProg : { [STDIO, DOOR Closed] } Eff ()
+doorProg : Eff () [STDIO, DOOR Closed]
 doorProg = do OK <- openDoor | Jammed => putStrLn "It's stuck!"
               closeDoor
               knock

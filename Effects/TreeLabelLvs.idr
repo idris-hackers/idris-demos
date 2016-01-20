@@ -18,8 +18,8 @@ testTree = Node (Node Leaf "One" (Node Leaf "Two" Leaf))
 data Tag : Type where
 data Leaves : Type where
 
-label : Tree a -> { [Leaves ::: STATE Int, Tag ::: STATE Int] } 
-                  Eff (Tree (Int, a))
+label : Tree a -> Eff (Tree (Int, a)) [Leaves ::: STATE Int, 
+                                       Tag ::: STATE Int] 
 label Leaf = do Leaves :- update (+1)
                 return Leaf
 label (Node l x r) = do l' <- label l 

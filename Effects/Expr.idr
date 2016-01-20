@@ -14,36 +14,35 @@ data Expr = Var String
 Env : Type
 Env = List (String, Integer)
 
-getRnd : Integer -> { [RND] } Eff Integer 
-getRnd upper = do val <- rndInt 0 upper
---                   putStrLn (show val)
-                  return val
+getRnd : Integer -> Eff Integer [RND]
+getRnd upper = rndInt 0 upper
 
-eval : Expr -> { [EXCEPTION String, RND, STDIO, STATE Env] } Eff Integer 
+eval : Expr -> Eff Integer [EXCEPTION String, STDIO, RND, STATE Env]
 eval (Var x) 
-   = do vs <- get
-        case lookup x vs of
-             Nothing => raise ("No such variable " ++ x)
-             Just val => return val
+   = case lookup x !get of
+          Nothing => raise ("No such variable " ++ x)
+          Just val => return val
 eval (Val x) = return x
-eval (Add l r) = do l' <- eval l
-                    r' <- eval r
-                    return (l' + r')
-eval (Random upper) = do val <- getRnd upper
-                         return val
+eval (Add l r) = return (!(eval l) + !(eval r))
+eval (Random x) = do val <- getRnd x
+                     putStrLn (show val)
+                     return val
 
 testExpr : Expr
 testExpr = Add (Add (Var "foo") (Val 42)) (Random 100)
 
 runEval : List (String, Integer) -> Expr -> IO Integer
 runEval args expr = run (eval' expr)
-  where eval' : Expr -> 
-                { [EXCEPTION String, RND, STDIO, STATE Env] } Eff Integer 
+  where eval' : Expr -> Eff Integer [EXCEPTION String, STDIO, RND, STATE Env]
         eval' e = do put args
-                     srand 1234567890
+                     srand 1234
                      eval e
+
 main : IO ()
 main = do putStr "Number: "
           x <- getLine
           val <- runEval [("foo", cast x)] testExpr
           putStrLn $ "Answer: " ++ show val
+          val <- runEval [("foo", cast x)] testExpr
+          putStrLn $ "Answer: " ++ show val
+

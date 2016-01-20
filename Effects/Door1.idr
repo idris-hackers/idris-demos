@@ -7,23 +7,23 @@ data DoorInfo : DoorState -> Type where
      DI : DoorInfo s
 
 data Door : Effect where
-     OpenDoor : { DoorInfo Closed ==> DoorInfo Open } Door ()
-     CloseDoor : { DoorInfo Open ==> DoorInfo Closed } Door ()
-     Knock : { DoorInfo Closed } Door ()
+     OpenDoor : sig Door () (DoorInfo Closed) (DoorInfo Open)
+     CloseDoor : sig Door () (DoorInfo Open) (DoorInfo Closed)
+     Knock : sig Door () (DoorInfo Closed)
 
 DOOR : DoorState -> EFFECT
 DOOR t = MkEff (DoorInfo t) Door
 
-openDoor : { [DOOR Closed] ==> [DOOR Open] } Eff ()
+openDoor : Eff () [DOOR Closed] [DOOR Open]
 openDoor = call OpenDoor
 
-closeDoor : { [DOOR Open] ==> [DOOR Closed] } Eff ()
+closeDoor : Eff () [DOOR Open] [DOOR Closed]
 closeDoor = call CloseDoor
 
-knock : { [DOOR Closed] } Eff ()
+knock : Eff () [DOOR Closed]
 knock = call Knock
 
-doorProg : { [DOOR Closed] } Eff ()
+doorProg : Eff () [DOOR Closed]
 doorProg = do knock
               openDoor
               closeDoor
