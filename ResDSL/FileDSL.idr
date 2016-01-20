@@ -11,41 +11,55 @@ pstring Writing = "w"
 data FILE : Purpose -> Type where
     OpenH : File -> FILE p
 
-syntax ifM [test] then [t] else [e]
+syntax "ifM" [test] "then" [t] "else" [e]
     = test >>= (\b => if b then t else e)
 
 open : String -> (p:Purpose) -> Creator (Either () (FILE p))
-open fn p = ioc (do h <- fopen fn (pstring p)
-                    ifM validFile h
-                        then return (Right (OpenH h))
-                        else return (Left ()))
+open fn p = ioc (do Right h <- fopen fn (pstring p)
+                       | Left err => return (Left ())
+                    return (Right (OpenH h)))
 
 close : FILE p -> Updater ()
 close (OpenH h) = iou (closeFile h)
 
 readLine : FILE Reading -> Reader String
-readLine (OpenH h) = ior (fread h)
+readLine (OpenH h) = ior (do Right str <- fGetLine h
+                                   | return ""
+                             return str)
 
 eof : FILE Reading -> Reader Bool
-eof (OpenH h) = ior (feof h)
+eof (OpenH h) = ior (fEOF h)
 
 syntax rclose [h]    = Update close h
 syntax rreadLine [h] = Use readLine h
 syntax reof [h]      = Use eof h
 
 syntax rputStrLn [s] = Lift (putStrLn s)
+syntax rputStr [s] = Lift (putStr s)
 
-syntax if opened [f] then [e] else [t] = Check f t e
+syntax "if" "opened" [f] "then" [e] "else" [t] = Check f t e
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 --------
 
 readH : String -> RES ()
 readH fn = res (do let x = open fn Reading
                    if opened x then
-                       do While (do e <- reof x
-                                    Return (not e))
-                                (do str <- rreadLine x
-                                    Lift (putStr str))
+                       do str <- rreadLine x
+                          rputStr str
                           rclose x
                        else rputStrLn "Error")
 
