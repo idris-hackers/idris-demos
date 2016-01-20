@@ -1,15 +1,15 @@
 module Parity
 
 data Parity : Nat -> Type where
-   even : Parity (n + n)
-   odd  : Parity (S (n + n))
+   Even : Parity (n + n)
+   Odd  : Parity (S (n + n))
 
 parity : (n:Nat) -> Parity n
-parity Z     = even {n=Z}
-parity (S Z) = odd {n=Z}
+parity Z     = Even {n=Z}
+parity (S Z) = Odd {n=Z}
 parity (S (S k)) with (parity k)
-    parity (S (S (j + j)))     | even = rewrite plusSuccRightSucc j j in even {n=S j}
-    parity (S (S (S (j + j)))) | odd  = rewrite plusSuccRightSucc j j in odd {n=S j}
+    parity (S (S (j + j)))     | Even = rewrite plusSuccRightSucc j j in Even {n=S j}
+    parity (S (S (S (j + j)))) | Odd  = rewrite plusSuccRightSucc j j in Odd {n=S j}
 
 {-
 parity_lemma_2 = proof {
