@@ -43,8 +43,7 @@ emain = do putStrLn "Initialising"
            quit
   where 
         draw : Running ()
-        draw = with Effects do 
-                  rectangle black 0 0 640 480
+        draw = do rectangle black 0 0 640 480
                   drawStarfield !(Starfield :- get)
                   gs <- Gamestate :- get
                   drawBullets (bullets gs)
@@ -76,6 +75,7 @@ emain = do putStrLn "Initialising"
         eventLoop = do draw
                        updateWorld
                        when !(process !poll) eventLoop
+        
 
 main : IO ()
 main = runInit [(), Frames := 0,
@@ -83,5 +83,3 @@ main = runInit [(), Frames := 0,
                 Starfield := List.Nil,
                 1234567890,
                 ()] emain
-
-

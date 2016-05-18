@@ -8,6 +8,8 @@ import Effect.StdIO
 import Aliens
 import Rnd
 
+%access public export
+
 record Gamestate where
     constructor MkGamestate
     position : (Int, Int)

@@ -2,6 +2,8 @@ module Rnd
 
 import Effects
 
+%access public export
+
 data Random : Effect where
      GetRandom : Random Int Int (\v => Int)
 

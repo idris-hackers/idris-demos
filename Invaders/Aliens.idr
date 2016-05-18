@@ -3,6 +3,8 @@ module Aliens
 import Effect.SDL
 import Effects
 
+%access public export
+
 record Alien where
     constructor MkAlien 
     position : (Int, Int)

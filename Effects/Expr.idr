@@ -14,10 +14,10 @@ data Expr = Var String
 Env : Type
 Env = List (String, Integer)
 
-getRnd : Integer -> Eff Integer [RND]
+getRnd : Integer -> Eff Integer [RND, STDIO]
 getRnd upper = rndInt 0 upper
 
-eval : Expr -> Eff Integer [EXCEPTION String, STDIO, RND, STATE Env]
+eval : Expr -> Eff Integer [STDIO, EXCEPTION String, STATE Env, RND]
 eval (Var x) 
    = case lookup x !get of
           Nothing => raise ("No such variable " ++ x)
@@ -33,7 +33,7 @@ testExpr = Add (Add (Var "foo") (Val 42)) (Random 100)
 
 runEval : List (String, Integer) -> Expr -> IO Integer
 runEval args expr = run (eval' expr)
-  where eval' : Expr -> Eff Integer [EXCEPTION String, STDIO, RND, STATE Env]
+  where eval' : Expr -> Eff Integer [EXCEPTION String, RND, STDIO, STATE Env]
         eval' e = do put args
                      srand 1234
                      eval e

@@ -9,6 +9,8 @@ import Effect.State
 
 import Rnd
 
+%access public export
+
 data Starfield : Type where -- for labelling state
 
 StarEff : Type -> Type
