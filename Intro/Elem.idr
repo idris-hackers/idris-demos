@@ -1,4 +1,4 @@
-module elem
+module Elem
 
 data Elem : a -> List a -> Type where
      Here : Elem x (x :: xs)
