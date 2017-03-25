@@ -29,7 +29,7 @@ updateStarfield = do xs <- Starfield :- get
                      Starfield :- put xs'
  where
   upd : List (Int, Int) -> List (Int, Int) -> { [RND] } Eff (List (Int, Int))
-  upd acc [] = return acc
+  upd acc [] = pure acc
   upd acc ((x, y) :: xs)
       = if (y > 479) then do
              x <- rndInt 0 639
@@ -38,7 +38,7 @@ updateStarfield = do xs <- Starfield :- get
              upd ((x, y+1) :: acc) xs
 
 drawStarfield : List (Int, Int) -> { [SDL_ON] } Eff ()
-drawStarfield [] = return ()
+drawStarfield [] = pure ()
 drawStarfield ((x, y) :: xs) = do line white x y x y
                                   drawStarfield xs
 

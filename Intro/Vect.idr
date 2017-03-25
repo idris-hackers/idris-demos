@@ -17,7 +17,6 @@ data Vect : Nat -> Type -> Type where
 
 append : Vect n a -> Vect m a -> Vect (n + m) a
 
-
 {-
 Try to write this using the interactive tools alone:
 

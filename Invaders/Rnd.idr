@@ -17,6 +17,6 @@ RND = MkEff Int Random
 
 rndInt : Int -> Int -> { [RND] } Eff Int
 rndInt lower upper = do v <- call GetRandom
-                        return (abs (v `prim__sremInt` (upper - lower)) + lower)
+                        pure (abs (v `prim__sremInt` (upper - lower)) + lower)
 
 

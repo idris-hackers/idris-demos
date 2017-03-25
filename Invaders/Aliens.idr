@@ -52,7 +52,7 @@ checkHit bs as = checkAll bs as [] []
         checkAll [] as asAcc bsAcc = (bsAcc, as ++ asAcc)
              
 drawAliens : List Alien -> { [SDL_ON] } Eff ()
-drawAliens [] = return ()
+drawAliens [] = pure ()
 drawAliens (a :: as) = do let (x, y) = Alien.position a
                           drawAlien x y
                           drawAliens as

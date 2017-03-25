@@ -54,12 +54,12 @@ removeHit gs = let bs = bullets gs in
                record { bullets = bs', aliens = as' } gs
 
 drawBullets : List (Int, Int) -> { [SDL_ON] } Eff ()
-drawBullets [] = return ()
+drawBullets [] = pure ()
 drawBullets ((x, y) :: bs) = do rectangle red (x-1) (y-4) 2 8
                                 drawBullets bs
 
 drawBombs : List (Int, Int) -> { [SDL_ON] } Eff ()
-drawBombs [] = return ()
+drawBombs [] = pure ()
 drawBombs ((x, y) :: bs) = do rectangle yellow (x-1) (y-4) 2 8
                               drawBombs bs
 
@@ -67,7 +67,7 @@ randomDropBomb : GS ()
 randomDropBomb = randomDrop (map (Alien.position) (aliens !(Gamestate :- get))) 
  where
    randomDrop : List (Int, Int) -> GS ()
-   randomDrop [] = return ()
+   randomDrop [] = pure ()
    randomDrop ((x, y) :: as) 
         = do if (!(rndInt 1 3000) == 100)  
                  then (do s <- Gamestate :- get
@@ -94,7 +94,7 @@ updateGamestate = do gs <- Gamestate :- get
 
 getPos : GS (Int, Int)
 getPos = do s <- Gamestate :- get
-            return (position s)
+            pure (position s)
 
 xmove : Int -> GS ()
 xmove x = do s <- Gamestate :- get
@@ -112,14 +112,14 @@ addBullet = do s <- Gamestate :- get
 
 -- Deal with keypresses from SDL
 process : Maybe Event -> GS Bool
-process (Just AppQuit) = return False
-process (Just (KeyDown KeyLeftArrow))  = do xmove (-2); return True
-process (Just (KeyUp KeyLeftArrow))    = do xmove 0; return True
-process (Just (KeyDown KeyRightArrow)) = do xmove 2; return True
-process (Just (KeyUp KeyRightArrow))   = do xmove 0; return True
-process (Just (KeyDown KeyUpArrow))    = do ymove (-2); return True
-process (Just (KeyUp KeyUpArrow))      = do ymove 0; return True
-process (Just (KeyDown KeyDownArrow))  = do ymove 2; return True
-process (Just (KeyUp KeyDownArrow))    = do ymove 0; return True
-process (Just (KeyDown KeySpace))      = do addBullet; return True 
-process _ = return True
+process (Just AppQuit) = pure False
+process (Just (KeyDown KeyLeftArrow))  = do xmove (-2); pure True
+process (Just (KeyUp KeyLeftArrow))    = do xmove 0; pure True
+process (Just (KeyDown KeyRightArrow)) = do xmove 2; pure True
+process (Just (KeyUp KeyRightArrow))   = do xmove 0; pure True
+process (Just (KeyDown KeyUpArrow))    = do ymove (-2); pure True
+process (Just (KeyUp KeyUpArrow))      = do ymove 0; pure True
+process (Just (KeyDown KeyDownArrow))  = do ymove 2; pure True
+process (Just (KeyUp KeyDownArrow))    = do ymove 0; pure True
+process (Just (KeyDown KeySpace))      = do addBullet; pure True 
+process _ = pure True
